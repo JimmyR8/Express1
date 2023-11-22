@@ -1,10 +1,14 @@
 
+//20/11/2023
 const express = require('express');
 const app = express();
 const port = 3000;
-//Mostrar en la Pagina el "Hola mundo" en diferente idiomas usando el "/" y la letra principal del idioma (EJEMPLO: I=Ingles, P=Portugues, A=Arabe)
+app.use(express.json());
+//Decir en la pagina que la App ya esta funcionando
 app.listen(port, () => console.log(`The app is running`));
 
+
+//Mostrar en la Pagina el "Hola mundo" en diferente idiomas usando el "/" y la letra principal del idioma (EJEMPLO: I=Ingles, P=Portugues, A=Arabe)
 app.get('/P', function (req, res) {
     return res.send('Oi Mundo');
 });
@@ -14,52 +18,71 @@ app.get('/I', function (req, res) {
 app.get('/A', function (req, res) {
     return res.send('مرحبا بالعالم');
 });
+
+
+var usuarios = [
+    { "name": "Jimmy", "lastname": "Ramirez", "ID": "12345" },
+    { "name": "Jose", "lastname": "Garcia", "ID": "54321" },
+    { "name": "Elizabeth", "lastname": "Rubiano", "ID": "52431" },
+];
+
 //Obtener todos los usuarios
-const usersS = ["Salomé", "Jimmy", "Jose", "Ramirez", "Garcia", "Reylander", "Jiel"];
-app.get('/usersS', function (req, res) {
-    return res.send(usersS);
+app.get('/allUsers', function (req, res) {
+    return res.send(usuarios);
 });
 
 //Obtener usuario en especifico
-const user = ["Salomé", "Jimmy", "Jose", "Ramirez", "Garcia", "Reylander", "Jiel"];
 app.get('/user', function (req, res) {
-    return res.send(user[5]);
+    return res.send(usuarios[2]);
 });
 
 //Obtener usuario aleatorio
-const userRand = ["Salomé", "Jimmy", "Jose", "Ramirez", "Garcia", "Reylander", "Jiel"];
 app.get('/userRand', function (req, res) {
-    return res.send(userRand[numeroRandom(6)]);
+    return res.send(usuarios[numeroRandom(6)]);
     function numeroRandom(max) {
         return Math.floor(Math.random() * max);
     }
 });
 
 //Path params   (Identificacion de recursos / jerarquia)
-const usersID = ["Salomé", "Jimmy", "Jose", "Ramirez", "Garcia", "Reylander", "Jiel"];
 app.get('/usersID/:id', function (req, res) {
     const index = req.params.id
-    return res.send(usersID[index]);
-    
+    return res.send(usuarios[index]);
 });
 
 //Query Paramns (Filtros o busquedad alrededor de un recurso)
-const users = [{ name: "Jimmy", lastname: "Ramirez" }, { name: "Jose", lastname: "Garcia" }, { name: "Ramirez", lastname: "Rubiano" }];
 app.get('/users', function (req, res) {
     const name = req.query.name
     console.log(req.query.name);
     console.log(req.query.lastname);
-    const foundUsers = users.find(user => user.name === name && user.lastname);
+    const foundUsers = usuarios.find(usuario => usuario.name === name);
     res.send(foundUsers);
 });
 
-//
-const usuarios = [{ name: "Jimmy", lastname: "Ramirez" }, 
-                  { name: "Jose", lastname: "Garcia" },
-                  { name: "Ramirez", lastname: "Rubiano" }, ];
-app.get('/usuario', function (req, res) {
-    const name = req.query
-    const nameSearch = usuarios.find(usuario => usuario.name === name);
-    console.log(nameSearch);
-    res.send(name)
+// 21/11/2023
+//Obtener todos los usuarios de la Arrey
+app.get('/usuariosS', function (req, res) {
+    return res.send(usuarios);
+});
+
+//POST Method (Creacion de informacion) && PUSH Method (Subir informacion)
+app.post('/usuarios', function (req, res) {
+    console.log(req.body);
+    usuarios.push(req.body);
+    res.status(201);
+    return res.send(req.body);
+});
+
+//PUT Method (Actulizar informacion)
+app.put('/usuario/:id', function (req, res) {
+    const index2 = req.params.id;
+    usuarios[index2] = req.body;
+    return res.send(usuarios[index2]);
+});
+
+//DELETE Method (Eliminar informacion)
+app.delete('/user/:id', function (req, res) {
+    const index3 = req.params.id;
+    usuarios.splice(index3, 1);
+    return res.send(usuarios);
 });
