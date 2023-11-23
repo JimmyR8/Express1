@@ -5,7 +5,7 @@ const app = express();
 const port = 3000;
 app.use(express.json());
 //Decir en la pagina que la App ya esta funcionando
-app.listen(port, () => console.log(`The app is running`));
+app.listen(port, () => console.log(`The App is ON`));
 
 
 //Mostrar en la Pagina el "Hola mundo" en diferente idiomas usando el "/" y la letra principal del idioma (EJEMPLO: I=Ingles, P=Portugues, A=Arabe)
@@ -86,3 +86,91 @@ app.delete('/user/:id', function (req, res) {
     usuarios.splice(index3, 1);
     return res.send(usuarios);
 });
+
+//22/11/2023
+//Corremos la base de datos
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    user: 'default',
+    host: 'ep-orange-smoke-08960365.us-east-1.postgres.vercel-storage.com',
+    database: 'verceldb',
+    password: 'bf3BTmnKYd4P',
+    port: 5432,
+    ssl: { rejectUnauthorized: false }
+});
+//GET Method (Obtener todos los usuarios de la Arrey de la base de datos)
+app.get('/students', function (req, res) {
+    const listUsersQuery = `SELECT * FROM students;`;
+
+    pool.query(listUsersQuery)
+        .then(data => {
+            console.log("List students: ", data.rows);
+            res.send(data.rows);
+            pool.end();
+        })
+        .catch(err => {
+            console.error(err);
+            pool.end();
+        });
+});
+
+//Path params   (Identificacion de recursos / jerarquia) (Obtener un dato especifico, en este caso con el ID)
+app.get('/student/:id', function (req, res) {
+    const id = req.params.id;
+    const listUsersQuery = `SELECT * FROM students WHERE id = ${id};`;
+
+    pool.query(listUsersQuery)
+        .then(data => {
+            console.log("List students: ", data.rows);
+            return res.send(data.rows);
+        })
+        .catch(err => {
+            console.error(err);
+            pool.end();
+        });
+});
+
+//POST Method (Creacion de archivos)
+app.post('/insertStudents', (req, res) => {
+    const insert = `INSERT INTO students (id, name, lastname, notes) VALUES('${req.body.id}','${req.body.name}','${req.body.lastname}','${req.body.notes}')`
+
+    pool.query(insert)
+        .then(data => {
+            console.log("List students: ", data.rows);
+            return res.send("Usuario creado");
+        })
+
+    console.log(res.rows)
+});
+
+//UPDATE Method (Actulizar un archivo en especifico)
+app.patch('/updateStudents/:id', (req, res) => {
+    const update = `UPDATE students SET id = ${req.body.id}, name = '${req.body.name}', lastname = '${req.body.lastname}', notes = '${req.body.notes}' WHERE id = ${req.params.id}`
+
+    pool.query(update)
+        .then(data => {
+            console.log("List students: ", data.rows);
+            return res.send("Usuario modificado");
+        })
+});
+
+//DELETE Method (Elminar un archivo en especifico)
+app.delete('/delete/:id', function (req, res) {
+    const eliminar = `DELETE FROM students WHERE id = ${req.params.id}`
+    pool.query(eliminar)
+    .then(data => {
+        console.log("List students: ", data.rows);
+        return res.send("Usuario eliminado");
+    })
+});
+
+//(Eliminar todos los usuarios)
+app.delete('/delete/users', function (req, res) {
+    const eliminar = `DELETE FROM students`
+    pool.query(eliminar)
+    .then(data => {
+        console.log("List students: ", data.rows);
+        return res.send("Usuarios eliminados");
+    })
+}); 
