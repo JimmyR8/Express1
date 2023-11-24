@@ -211,3 +211,4 @@ app.delete('/delete/users', function (req, res) {
 });
 
 //Deploy DATA BASE
+module.exports=app
